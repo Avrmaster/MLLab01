@@ -1,5 +1,5 @@
-with open('./house_prices_data_filtered.csv') as data,\
-        open('./house_prices_data_processed.csv', 'w') as out:
+with open('./prices_filtered.csv') as data,\
+        open('./prices_processed.csv', 'w') as out:
     header = True
     for l in data:
         if header:
