@@ -17,16 +17,23 @@ age = data['age'].values
 was_rebuilt = data['was_rebuilt'].values
 sqft_living15 = data['sqft_living15'].values
 sqft_lot15 = data['sqft_lot15'].values
+sqft_above = data['sqft_above'].values
+sqft_basement = data['sqft_basement'].values
 
-zipped = list(zip(list(prices), list(view)))
-zipped.sort(key=lambda t: t[1])
+# a = data.corr()
+# plt.matshow(a)
+# plt.xticks(range(a.shape[1]), a.columns, fontsize=14, rotation=90)
+# plt.yticks(range(a.shape[1]), a.columns, fontsize=14)
+# plt.show()
+
+zipped = list(zip(list(prices), list(sqft_living15)))
 print(zipped)
 
 plt.scatter([t[1] for t in zipped], [t[0] for t in zipped], marker='o', s=1)
 # plt.plot([t[1] for t in zipped], [t[0] for t in zipped])
 
 # naming the x axis
-plt.xlabel('view')
+plt.xlabel('sqft_living15')
 # naming the y axis
 plt.ylabel('prices')
 

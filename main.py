@@ -6,8 +6,8 @@ from sklearn.metrics import mean_squared_error
 
 
 def separate_prices(normal_data: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-    x_arr = normal_data[:, list(range(1, len(data[0])))]
     y_arr = normal_data[:, [0]]
+    x_arr = normal_data[:, list(range(1, len(data[0])))]
 
     ones = np.ones([x_arr.shape[0], 1])
     return np.concatenate((ones, x_arr), axis=1), y_arr
