@@ -23,31 +23,38 @@ with open('./dataset/prices_processed.csv') as file:
     # type: np.array
     data = np.array([[float(v) for v in l.split(',')] for l in file.readlines()[1:]])
 
-    mins = np.repeat(np.array([[np.min(d) for d in data.T]]), len(data), axis=0)
-    maxs = np.repeat(np.array([[np.max(d) for d in data.T]]), len(data), axis=0)
+    # mins = np.repeat(np.array([[np.min(d) for d in data.T]]), len(data), axis=0)
+    # maxs = np.repeat(np.array([[np.max(d) for d in data.T]]), len(data), axis=0)
+    # normal_data = (data - mins) / (maxs - mins)
 
-    normal_data = (data - mins) / (maxs - mins)
+    data = np.delete(data, 11, axis=1)
+    print(data[0])
 
-    inputs, prices = separate_prices(normal_data[:20000])
-    test_inputs, test_prices = separate_prices(normal_data[20000:])
+    scaler = preprocessing.StandardScaler()
+    normal_data = scaler.fit_transform(data)
 
-    for i in range(20):
-        print([int(d) for d in data[i]])
-        print(inputs[i])
-        print()
+    inputs, prices = separate_prices(normal_data[:600])
+    test_inputs, test_prices = separate_prices(normal_data[600:])
+
+    # for i in range(20):
+    #     print([int(d) for d in data[i]])
+    #     print(inputs[i])
+    #     print()
 
     trained_model = train(inputs, prices)
     predicted_prices = trained_model.predict(test_inputs)
 
-    unnormalized_train_prices = (test_prices * (maxs - mins)[0][0]) + mins[0][0]
-    unnormalized_predictions = (predicted_prices * (maxs - mins)[0][0]) + mins[0][0]
+    unnormalized_train_prices = scaler.inverse_transform(np.repeat(test_prices, 15, axis=1))
+    unnormalized_predictions = scaler.inverse_transform(np.repeat(predicted_prices, 15, axis=1))
 
-    # for it in range(50):
-    #     i = len(predicted_prices) - it - 1
-    #
-    #     # print(test_inputs[i], ' - ', test_prices[i], ' - ', predicted_prices[i])
-    #     # print(test_prices[i], ' - ', predicted_prices[i])
-    #     print(int(unnormalized_train_prices[i]), ' - ', int(unnormalized_predictions[i]))
+    print(trained_model.score(test_inputs, test_prices))
+
+    for it in range(50):
+        i = len(predicted_prices) - it - 1
+
+        # print(test_inputs[i], ' - ', test_prices[i], ' - ', predicted_prices[i])
+        # print(test_prices[i], ' - ', predicted_prices[i])
+        print(int(unnormalized_train_prices[i][0]), ' - ', int(unnormalized_predictions[i][0]))
 
     # print(trained_model.coef_)
     # print(mean_squared_error(unnormalized_train_prices, unnormalized_predictions))
