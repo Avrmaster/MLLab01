@@ -2,6 +2,7 @@ from sklearn.linear_model import Ridge, Lasso, LinearRegression, ElasticNet
 from sklearn.preprocessing import OneHotEncoder
 from sklearn import preprocessing
 from typing import Tuple
+import pandas_profiling
 import pandas as pd
 import numpy as np
 
@@ -11,8 +12,6 @@ data = data.drop([
     'id', 'date', 'lat', 'long', 'sqft_above', 'waterfront',
     'sqft_basement', 'yr_built', 'yr_renovated', 'zipcode',
 ], axis=1)
-
-print([c for c in data])
 
 
 def encode_categories(source_data, column_name, categories):
@@ -25,16 +24,13 @@ def encode_categories(source_data, column_name, categories):
 
 data = encode_categories(data, 'view', range(5))
 data = encode_categories(data, 'condition', range(1, 6))
-data = encode_categories(data, 'premium', range(2))
+
+# bedrooms = data['bedrooms']
+# bathrooms = data['bathrooms']
+# data = data.drop(['bedrooms', 'bathrooms'], axis=1)
+# data.insert(1, 'rooms', bedrooms + bathrooms)
 
 print([c for c in data])
-
-bedrooms = data['bedrooms']
-bathrooms = data['bathrooms']
-
-data = data.drop(['bedrooms', 'bathrooms'], axis=1)
-data.insert(1, 'rooms', bedrooms + bathrooms)
-
 print('\n\n')
 
 
@@ -42,13 +38,12 @@ def separate_prices(to_separate_data: np.ndarray) -> Tuple[np.ndarray, np.ndarra
     x_arr = to_separate_data[:, list(range(1, len(to_separate_data[0])))]
     y_arr = to_separate_data[:, [0]]
 
-    ones = np.ones([x_arr.shape[0], 1])
-    return np.concatenate((ones, x_arr), axis=1), y_arr
+    return x_arr, y_arr
 
 
 np_data = data.to_numpy()
-train_data = np_data[:19000]
-test_data = np_data[19000:]
+train_data = np_data[:20000]
+test_data = np_data[20000:]
 
 scaler = preprocessing.StandardScaler()
 train_data = scaler.fit_transform(train_data)
@@ -57,8 +52,15 @@ test_data = scaler.transform(test_data)
 train_inputs, train_prices = separate_prices(train_data)
 test_inputs, test_prices = separate_prices(test_data)
 
-model = Lasso(alpha=.01, max_iter=6000000)
+model = Ridge(alpha=.07, max_iter=90000000)
 print(model.fit(train_inputs, train_prices))
-print(model.coef_)
+
+
+def get_coefs(coefs, data_head):
+    return '\n'.join([str({key: coefs[i]}) for i, key in enumerate(data_head)])
+
+
+print('coeff_used', np.sum(model.coef_ != 0))
+print('coeff_description', get_coefs(model.coef_[0], data.drop('price', axis=1).keys()))
 
 print('score', model.score(test_inputs, test_prices))
