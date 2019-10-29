@@ -9,8 +9,8 @@ import numpy as np
 data = pd.read_csv('./dataset/prices_original.csv')
 
 data = data.drop([
-    'id', 'date', 'lat', 'long', 'sqft_above', 'waterfront',
-    'sqft_basement', 'yr_built', 'yr_renovated', 'zipcode',
+    'id', 'date', 'lat', 'long', 'sqft_living',
+    'yr_built', 'yr_renovated', 'zipcode', 'waterfront'
 ], axis=1)
 
 
@@ -24,6 +24,7 @@ def encode_categories(source_data, column_name, categories):
 
 data = encode_categories(data, 'view', range(5))
 data = encode_categories(data, 'condition', range(1, 6))
+data = encode_categories(data, 'floors', list((map(lambda a: a / 2, list(range(2, 8))))))  # 1 ... 3.5
 
 # bedrooms = data['bedrooms']
 # bathrooms = data['bathrooms']
@@ -42,10 +43,10 @@ def separate_prices(to_separate_data: np.ndarray) -> Tuple[np.ndarray, np.ndarra
 
 
 np_data = data.to_numpy()
-train_data = np_data[:20000]
-test_data = np_data[20000:]
+train_data = np_data[:18000]
+test_data = np_data[18000:]
 
-scaler = preprocessing.StandardScaler()
+scaler = preprocessing.Normalizer()
 train_data = scaler.fit_transform(train_data)
 test_data = scaler.transform(test_data)
 
